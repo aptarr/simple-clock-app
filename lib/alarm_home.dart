@@ -14,18 +14,16 @@ class _AlarmHomeState extends State<AlarmHome> {
   @override
   void initState() {
     super.initState();
-    // Initialize the list of alarms here if needed
     alarms = data.alarm;
   }
 
   void addAlarm(data.AlarmInfo newAlarm) {
     setState(() {
-      alarms.add(newAlarm);  // Update the local alarms list
+      alarms.add(newAlarm);
       data.alarm = alarms;
     });
   }
 
-  // Function to delete an alarm
   void deleteAlarm(data.AlarmInfo alarmToDelete) {
     setState(() {
       alarms.remove(alarmToDelete);
@@ -33,18 +31,20 @@ class _AlarmHomeState extends State<AlarmHome> {
     });
   }
 
-  // Function to edit an alarm
   void editAlarm(data.AlarmInfo alarmToEdit, String newDescription, TimeOfDay newTime) {
     setState(() {
-      alarmToEdit.description = newDescription;
-      alarmToEdit.alarmDateTime = DateTime(
-        DateTime.now().year,
-        DateTime.now().month,
-        DateTime.now().day,
-        newTime.hour,
-        newTime.minute,
+      int index = alarms.indexOf(alarmToEdit);
+      alarms[index] = data.AlarmInfo(
+        DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, newTime.hour, newTime.minute),
+        description: newDescription,
       );
       data.alarm = alarms;
+    });
+  }
+
+  void activeAlarm(data.AlarmInfo alarmToActive) {
+    setState(() {
+      alarmToActive.isActive = !alarmToActive.isActive;
     });
   }
 
@@ -55,17 +55,17 @@ class _AlarmHomeState extends State<AlarmHome> {
         alarms: alarms,
         onDelete: deleteAlarm,
         onEdit: editAlarm,
+        onActive: activeAlarm,
       ),
       backgroundColor: Colors.black,
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Navigate to AlarmAdd page when the button is pressed
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => AlarmAdd(addAlarm: addAlarm)), // Navigate to AlarmAdd page
+            MaterialPageRoute(builder: (context) => AlarmAdd(addAlarm: addAlarm)),
           );
         },
-        child: Icon(Icons.add), // Floating action button icon
+        child: Icon(Icons.add),
       ),
     );
   }

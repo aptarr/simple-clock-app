@@ -40,9 +40,7 @@ class _AlarmAddState extends State<AlarmAdd> {
     );
 
     // Get the description or set a default value
-    String description = _descriptionController.text.isEmpty
-        ? 'No Description'
-        : _descriptionController.text;
+    String description = _descriptionController.text;
 
     // Create a new AlarmInfo object
     data.AlarmInfo newAlarm = data.AlarmInfo(alarmDateTime, description: description);

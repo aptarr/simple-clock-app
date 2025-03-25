@@ -1,19 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:simple_clock_apps/data.dart' as data;
 
-class AlarmAdd extends StatefulWidget {
-  final Function(data.AlarmInfo) addAlarm;
+class AlarmEdit extends StatefulWidget {
+  final data.AlarmInfo alarm;
+  final Function(data.AlarmInfo, String, TimeOfDay) editAlarm;
 
-  AlarmAdd({required this.addAlarm});
+  AlarmEdit({required this.alarm, required this.editAlarm});
 
   @override
-  _AlarmAddState createState() => _AlarmAddState();
+  _AlarmEditState createState() => _AlarmEditState();
 }
 
-class _AlarmAddState extends State<AlarmAdd> {
-  // Controllers to hold input values
-  TextEditingController _descriptionController = TextEditingController();
-  TimeOfDay _time = TimeOfDay.now();
+class _AlarmEditState extends State<AlarmEdit> {
+  late TextEditingController _descriptionController;
+  late TimeOfDay _time;
+
+  @override
+  void initState() {
+    super.initState();
+    _descriptionController = TextEditingController(text: widget.alarm.description);
+    _time = TimeOfDay(hour: widget.alarm.alarmDateTime.hour, minute: widget.alarm.alarmDateTime.minute);
+  }
 
   // Function to show time picker
   Future<void> _selectTime(BuildContext context) async {
@@ -28,37 +35,12 @@ class _AlarmAddState extends State<AlarmAdd> {
     }
   }
 
-  // Function to save the alarm
+  // Function to save the edited alarm
   void _saveAlarm() {
-    // Create the DateTime object using the selected time
-    DateTime alarmDateTime = DateTime(
-      DateTime.now().year,
-      DateTime.now().month,
-      DateTime.now().day,
-      _time.hour,
-      _time.minute,
-    );
+    // Call the editAlarm function to save the updated alarm
+    widget.editAlarm(widget.alarm, _descriptionController.text, _time);
 
-    // Get the description or set a default value
-    String description = _descriptionController.text.isEmpty
-        ? 'No Description'
-        : _descriptionController.text;
-
-    // Create a new AlarmInfo object
-    data.AlarmInfo newAlarm = data.AlarmInfo(alarmDateTime, description: description);
-
-    // Add the new alarm to the list
-    widget.addAlarm(newAlarm);
-
-    // Print the alarm details for demonstration purposes
-    print('Alarm set for: $alarmDateTime with description: $description');
-
-    // Navigate back to the home screen (or previous screen)
-    Navigator.pop(context);
-  }
-
-  // Function to cancel the operation (for now, just pop the screen)
-  void _cancel() {
+    // Navigate back to the home screen after saving
     Navigator.pop(context);
   }
 
@@ -71,101 +53,41 @@ class _AlarmAddState extends State<AlarmAdd> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              margin: EdgeInsets.only(top: 30, bottom: 10),  // Set the margin here
-              child: Text(
-                'Add New Alarm',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+            Text(
+              'Edit Alarm',
+              style: TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold),
             ),
-            // Time Picker
-            Container(
-              decoration: BoxDecoration(
-                color: Color(0xFF2D2F41),
-                borderRadius: BorderRadius.circular(10), // Set the radius for rounded corners
-                border: Border.all(width: 1), // Optional: Border color and width
-              ),
-              margin: EdgeInsets.only(top: 30, bottom: 10),
-              child: ListTile(
-                title: Text(
-                  'Time',
-                  style: TextStyle(
-                    fontSize: 24,
-                    color: Colors.white,
-                  ),
-                ),
-                subtitle: Text(
-                  '${_time.format(context)}',
-                  style: TextStyle(color: Colors.white, fontSize: 50, fontWeight: FontWeight.bold),
-                ),
-                trailing: Icon(Icons.access_time, color: Colors.white, size: 40,),
-                onTap: () => _selectTime(context),
-              ),
+            ListTile(
+              title: Text('Time', style: TextStyle(color: Colors.white)),
+              subtitle: Text('${_time.format(context)}', style: TextStyle(color: Colors.white, fontSize: 50, fontWeight: FontWeight.bold)),
+              trailing: Icon(Icons.access_time, color: Colors.white),
+              onTap: () => _selectTime(context),
             ),
-
-            // Description Field
             TextField(
               controller: _descriptionController,
               decoration: InputDecoration(
                 labelText: 'Description (Optional)',
-                labelStyle: TextStyle(
-                  color: Colors.white,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(
-                    color: Colors.deepPurpleAccent,
-                    width: 2, // border width
-                  ),
-                ),
+                labelStyle: TextStyle(color: Colors.white),
+                border: OutlineInputBorder(),
               ),
               style: TextStyle(color: Colors.white, fontSize: 18),
             ),
             SizedBox(height: 20),
-
-            // Buttons (Save and Cancel)
-            Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Cancel Button
-                  ElevatedButton(
-                    onPressed: _cancel,
-                    child: Text(
-                      'Cancel',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
-                      padding: EdgeInsets.symmetric(horizontal: 40, vertical: 10),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(50),
-                        side: BorderSide(
-                          color: Colors.deepPurpleAccent,
-                          width: 2, // border width
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 20), // Space between the buttons
-                  // Save Button
-                  ElevatedButton(
-                    onPressed: _saveAlarm,
-                    child: Text(
-                      'Save Alarm',
-                      style: TextStyle(color: Colors.deepPurpleAccent),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white, // White color for Save
-                      padding: EdgeInsets.symmetric(horizontal: 40, vertical: 10),
-                    ),
-                  ),
-                ],
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context), // Cancel button
+                  child: Text('Cancel', style: TextStyle(color: Colors.white)),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
+                ),
+                SizedBox(width: 20),
+                ElevatedButton(
+                  onPressed: _saveAlarm, // Save button
+                  child: Text('Save Alarm', style: TextStyle(color: Colors.deepPurpleAccent)),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.white)
+                ),
+              ],
             ),
           ],
         ),

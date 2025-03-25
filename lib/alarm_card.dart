@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:simple_clock_apps/alarm_edit.dart';
 import 'package:simple_clock_apps/data.dart' as data;
 import 'package:intl/intl.dart'; // For formatting date and time
 
@@ -6,64 +7,9 @@ class AlarmCard extends StatelessWidget {
   final List<data.AlarmInfo> alarms;
   final Function(data.AlarmInfo) onDelete;
   final Function(data.AlarmInfo, String, TimeOfDay) onEdit;
+  final Function(data.AlarmInfo) onActive;
 
-  AlarmCard({required this.alarms, required this.onDelete, required this.onEdit});
-
-  // Function to show the edit dialog
-  void _editAlarm(BuildContext context, data.AlarmInfo alarm) {
-    TextEditingController descriptionController =
-    TextEditingController(text: alarm.description);
-    TimeOfDay time = TimeOfDay(
-        hour: alarm.alarmDateTime.hour, minute: alarm.alarmDateTime.minute);
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text("Edit Alarm"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: descriptionController,
-                decoration: InputDecoration(labelText: 'Description'),
-              ),
-              SizedBox(height: 20),
-              ListTile(
-                title: Text('Time'),
-                subtitle: Text(time.format(context)),
-                trailing: Icon(Icons.access_time),
-                onTap: () async {
-                  TimeOfDay? newTime = await showTimePicker(
-                    context: context,
-                    initialTime: time,
-                  );
-                  if (newTime != null) {
-                    time = newTime;
-                  }
-                },
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); // Close the dialog
-              },
-              child: Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                onEdit(alarm, descriptionController.text, time);
-                Navigator.pop(context); // Close the dialog
-              },
-              child: Text('Save'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+  AlarmCard({required this.alarms, required this.onDelete, required this.onEdit, required this.onActive});
 
   @override
   Widget build(BuildContext context) {
@@ -141,7 +87,17 @@ class AlarmCard extends StatelessWidget {
                               children: [
                                 TextButton.icon(
                                   onPressed: () {
-                                    _editAlarm(context, alarm);
+                                    // _editAlarm(context, alarm);
+                                    // Navigate to AlarmAdd page when the button is pressed
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => AlarmEdit(
+                                          alarm: alarm,
+                                          editAlarm: onEdit,
+                                        ),
+                                      ),
+                                    );
                                   },
                                   label: Text(''),
                                   icon: Icon(Icons.edit, size: 25),
@@ -161,7 +117,7 @@ class AlarmCard extends StatelessWidget {
                           child: Switch(
                             value: alarm.isActive,
                             onChanged: (bool value) {
-                              alarm.isActive = value; // Toggle the alarm's active status
+                              onActive(alarm);
                             },
                           ),
                         ),
