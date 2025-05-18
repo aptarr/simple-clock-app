@@ -42,7 +42,7 @@ class AlarmCard extends StatelessWidget {
             Expanded(
               child: ListView(
                 padding: EdgeInsets.all(20),
-                children: data.alarm.map((alarm){
+                children: alarms.map((alarm){
                   return Container(
                     margin: EdgeInsets.only(bottom: 10),
                     height: 150,
@@ -69,7 +69,7 @@ class AlarmCard extends StatelessWidget {
                                     )
                                 ),
                                 Text(
-                                    "${alarm.alarmDateTime.hour}:${alarm.alarmDateTime.minute.toString().padLeft(2, '0')}",
+                                    "${alarm.time.hour}:${alarm.time.minute.toString().padLeft(2, '0')}",
                                     style: TextStyle(
                                       // fontFamily: ,
                                       fontWeight: FontWeight.bold,

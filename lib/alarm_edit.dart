@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:simple_clock_apps/data.dart' as data;
 
+import 'notification_service.dart';
+
 class AlarmEdit extends StatefulWidget {
   final data.AlarmInfo alarm;
   final Function(data.AlarmInfo, String, TimeOfDay) editAlarm;
@@ -19,7 +21,7 @@ class _AlarmEditState extends State<AlarmEdit> {
   void initState() {
     super.initState();
     _descriptionController = TextEditingController(text: widget.alarm.description);
-    _time = TimeOfDay(hour: widget.alarm.alarmDateTime.hour, minute: widget.alarm.alarmDateTime.minute);
+    _time = TimeOfDay(hour: widget.alarm.time.hour, minute: widget.alarm.time.minute);
   }
 
   // Function to show time picker
@@ -36,9 +38,29 @@ class _AlarmEditState extends State<AlarmEdit> {
   }
 
   // Function to save the edited alarm
-  void _saveAlarm() {
+  void _saveAlarm() async {
     // Call the editAlarm function to save the updated alarm
     widget.editAlarm(widget.alarm, _descriptionController.text, _time);
+
+    // Compute the new alarm time
+    final updatedDateTime = DateTime(
+      DateTime.now().year,
+      DateTime.now().month,
+      DateTime.now().day,
+      _time.hour,
+      _time.minute,
+    );
+
+    // Schedule the updated notification
+    await NotificationService.createNotification(
+      id: int.tryParse(widget.alarm.id) ?? 0, // reuse the same ID to overwrite
+      title: 'Updated Alarm',
+      body: _descriptionController.text.isNotEmpty
+          ? _descriptionController.text
+          : 'Your alarm is ringing!',
+      scheduled: true,
+      interval: updatedDateTime.difference(DateTime.now()),
+    );
 
     // Navigate back to the home screen after saving
     Navigator.pop(context);

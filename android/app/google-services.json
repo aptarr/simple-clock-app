@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "215576163264",
+    "project_id": "simple-alarm-app",
+    "storage_bucket": "simple-alarm-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:215576163264:android:5f25470b377a6f0a980e25",
+        "android_client_info": {
+          "package_name": "com.example.simple_clock_apps"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBqTnNNqdasovdsZt_SUQLNEeVR_I8FFj8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

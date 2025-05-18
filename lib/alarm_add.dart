@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:simple_clock_apps/data.dart' as data;
+
+import 'notification_service.dart';
 
 class AlarmAdd extends StatefulWidget {
-  final Function(data.AlarmInfo) addAlarm;
+  final Function(DateTime, String?) addAlarm;
 
   AlarmAdd({required this.addAlarm});
 
@@ -12,8 +13,9 @@ class AlarmAdd extends StatefulWidget {
 
 class _AlarmAddState extends State<AlarmAdd> {
   // Controllers to hold input values
-  TextEditingController _descriptionController = TextEditingController();
   TimeOfDay _time = TimeOfDay.now();
+  TextEditingController _descriptionController = TextEditingController();
+
 
   // Function to show time picker
   Future<void> _selectTime(BuildContext context) async {
@@ -29,29 +31,26 @@ class _AlarmAddState extends State<AlarmAdd> {
   }
 
   // Function to save the alarm
-  void _saveAlarm() {
-    // Create the DateTime object using the selected time
-    DateTime alarmDateTime = DateTime(
+  void _saveAlarm() async {
+    final alarmDateTime = DateTime(
       DateTime.now().year,
       DateTime.now().month,
       DateTime.now().day,
       _time.hour,
       _time.minute,
     );
+    widget.addAlarm(alarmDateTime, _descriptionController.text);
 
-    // Get the description or set a default value
-    String description = _descriptionController.text;
+    await NotificationService.createNotification(
+      id: alarmDateTime.millisecondsSinceEpoch ~/ 1000,
+      title: 'Alarm',
+      body: _descriptionController.text.isNotEmpty
+          ? _descriptionController.text
+          : 'Your alarm is ringing!',
+      scheduled: true,
+      interval: alarmDateTime.difference(DateTime.now()),
+    );
 
-    // Create a new AlarmInfo object
-    data.AlarmInfo newAlarm = data.AlarmInfo(alarmDateTime, description: description);
-
-    // Add the new alarm to the list
-    widget.addAlarm(newAlarm);
-
-    // Print the alarm details for demonstration purposes
-    print('Alarm set for: $alarmDateTime with description: $description');
-
-    // Navigate back to the home screen (or previous screen)
     Navigator.pop(context);
   }
 
